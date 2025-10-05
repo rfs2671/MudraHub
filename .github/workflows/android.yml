@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,9 +20,15 @@ jobs:
           java-version: "17"
           cache: gradle
 
-- name: Ensure Gradle wrapper
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept licenses
+        run: yes | sdkmanager --licenses
+
+      - name: Ensure Gradle wrapper
         run: |
-          # If wrapper jar is missing, create a fresh wrapper with Gradle 8.7
+          # If wrapper jar is missing, create a fresh wrapper
           if [ ! -f ./gradlew ]; then
             gradle wrapper --gradle-version 8.7
           fi
