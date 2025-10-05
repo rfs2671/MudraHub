@@ -26,12 +26,21 @@ jobs:
       - name: Accept licenses
         run: yes | sdkmanager --licenses
 
-      - name: Install Gradle and regenerate wrapper
+      # Ensure the platform/build-tools you compile against are present
+      - name: Install required Android SDK components
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gradle
-          gradle wrapper --gradle-version 8.7
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+
+      # Generate a fresh wrapper if the repo doesn't have one; make it executable
+      - name: Ensure Gradle wrapper
+        run: |
+          if [ ! -f ./gradlew ]; then
+            sudo apt-get update
+            sudo apt-get install -y gradle
+            gradle wrapper --gradle-version 8.7
+          fi
           chmod +x ./gradlew
+          ./gradlew --version
 
       - name: Build Debug APK
         run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
