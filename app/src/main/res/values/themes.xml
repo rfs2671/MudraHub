@@ -1,12 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme -->
-    <style name="Theme.MudraHub" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Primary brand color -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorOnSecondary">@color/colorOnSecondary</item>
-        <item name="android:statusBarColor">?attr/colorPrimary</item>
-        <item name="android:navigationBarColor">?attr/colorPrimary</item>
-    </style>
+<resources>
+    <!-- Use a framework theme that always exists -->
+    <style name="Theme.MudraHub" parent="Theme.DeviceDefault.DayNight.NoActionBar" />
 </resources>
