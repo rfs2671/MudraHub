@@ -19,18 +19,20 @@ jobs:
           java-version: "17"
           cache: gradle
 
-      - name: Install Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept licenses
-        run: yes | sdkmanager --licenses
-
-      - name: Ensure Gradle wrapper
+- name: Ensure Gradle wrapper
         run: |
+          # If wrapper jar is missing, create a fresh wrapper with Gradle 8.7
           if [ ! -f ./gradlew ]; then
             gradle wrapper --gradle-version 8.7
           fi
           chmod +x ./gradlew
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "gradle-wrapper.jar missing, downloading..."
+            mkdir -p gradle/wrapper
+            curl -sL https://services.gradle.org/distributions/gradle-8.7-bin.zip -o gradle-8.7-bin.zip
+            unzip -q gradle-8.7-bin.zip
+            cp gradle-8.7/lib/gradle-launcher-8.7.jar gradle/wrapper/gradle-wrapper.jar
+          fi
 
       - name: Build Debug APK
         run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
