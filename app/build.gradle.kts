@@ -15,32 +15,42 @@ android {
         versionName = "1.0"
     }
 
+    // Java 17 for AGP 8.x / Kotlin 1.9.x
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions { jvmTarget = "17" }
+
     buildFeatures { compose = true }
     composeOptions { kotlinCompilerExtensionVersion = "1.5.14" }
-    kotlinOptions { jvmTarget = "17" }
+
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
 }
 
 dependencies {
+    // Compose BOM controls compose* versions
     val composeBom = platform("androidx.compose:compose-bom:2024.09.02")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.activity:activity-compose:1.9.2")
+
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3:1.3.0")
+    implementation("androidx.compose.ui:ui-graphics") // optional but handy
+    implementation("androidx.compose.material3:material3") // ← no version (BOM manages it)
+
     implementation("androidx.navigation:navigation-compose:2.8.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-    // BLE scan helpers (for optional BLE targets)
+    // BLE scanning (optional)
     implementation("no.nordicsemi.android.support.v18:scanner:1.6.0")
 
-    // Accessibility support (no extra deps required)
-    // Bluetooth Classic SPP (built-in android.bluetooth APIs)
+    // Debug tools
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
