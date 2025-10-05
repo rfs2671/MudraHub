@@ -15,6 +15,7 @@ android {
         versionName = "1.0"
     }
 
+    // Java 17 for AGP 8.x / Kotlin 1.9.x
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -28,7 +29,7 @@ android {
 }
 
 dependencies {
-    // Compose BOM controls compose* versions
+    // Compose BOM controls all compose* versions (ui, runtime, material3, etc.)
     val composeBom = platform("androidx.compose:compose-bom:2024.09.02")
     implementation(composeBom)
     androidTestImplementation(composeBom)
@@ -36,18 +37,21 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.activity:activity-compose:1.9.2")
 
+    // Compose UI
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.ui:ui-graphics")
+
+    // Material 3 (includes ExposedDropdownMenu APIs; you already opt-in in code)
     implementation("androidx.compose.material3:material3")
 
+    // Navigation + Lifecycle
     implementation("androidx.navigation:navigation-compose:2.8.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-    // Material Components (needed for Theme.Material3.DayNight.NoActionBar + attrs)
-    implementation("com.google.android.material:material:1.12.0")
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
     // BLE scanning (optional)
     implementation("no.nordicsemi.android.support.v18:scanner:1.6.0")
