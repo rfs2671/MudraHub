@@ -14,8 +14,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExposedDropdownMenu
@@ -46,7 +46,7 @@ fun MudraScreen(vm: AppViewModel = viewModel()) {
     val status by vm.status.collectAsState(initial = "Ready")
     val ctx = androidx.compose.ui.platform.LocalContext.current
 
-    // Poll while visible so the banner auto-hides once user enables the service and returns
+    // Poll while visible so the banner auto-hides once user enables the service and returns.
     var a11yEnabled by remember { mutableStateOf(AccessibilityHelper.isServiceEnabled(ctx)) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -63,7 +63,6 @@ fun MudraScreen(vm: AppViewModel = viewModel()) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Accessibility banner (only for SystemBt flow)
             if (!a11yEnabled) {
                 ElevatedCard(
                     colors = CardDefaults.elevatedCardColors(
@@ -97,21 +96,19 @@ fun MudraScreen(vm: AppViewModel = viewModel()) {
 
             Text(status, style = MaterialTheme.typography.bodyMedium)
 
-            // Add device row
             AddDeviceRow { name, kind, mac, uuid ->
                 vm.addDevice(name, kind, mac, uuid)
             }
 
             Divider()
 
-            // Device list
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(devices, key = { it.id }) { d ->
                     DeviceRow(
                         d,
                         onConnect = { vm.connectTo(d) },
                         onDisconnect = { vm.disconnectFrom(d) },
-                        onEdit = { vm.editDevice(it) },  // keep API shape; button optional below
+                        onEdit = { vm.editDevice(it) },
                         onDelete = { vm.removeDevice(d.id) }
                     )
                 }
@@ -176,14 +173,16 @@ private fun KindDropdown(current: ConnectorKind, onPick: (ConnectorKind) -> Unit
             value = current.name,
             onValueChange = {},
             readOnly = true,
-            modifier = Modifier
-                .menuAnchor(),
+            modifier = Modifier.menuAnchor(),
             label = { Text("Connector") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) }
         )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
             ConnectorKind.values().forEach { k ->
-                androidx.compose.material3.DropdownMenuItem(
+                DropdownMenuItem(
                     text = { Text(k.name) },
                     onClick = { onPick(k); expanded = false }
                 )
@@ -212,8 +211,7 @@ private fun DeviceRow(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = onConnect) { Text("Connect") }
                 OutlinedButton(onClick = onDisconnect) { Text("Disconnect") }
-                // If you want an Edit button, uncomment the next line:
-                // OutlinedButton(onClick = { onEdit(d) }) { Text("Edit") }
+                // OutlinedButton(onClick = { onEdit(d) }) { Text("Edit") } // optional
                 OutlinedButton(onClick = onDelete) { Text("Delete") }
             }
         }
