@@ -17,53 +17,34 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: '17'
           cache: gradle
 
-      - name: Install Android SDK
+      # Install cmdline tools + the *exact* packages we need
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 12266719
+          packages: |
+            platform-tools
+            platforms;android-34
+            build-tools;34.0.0
 
-      - name: Accept licenses
-        run: yes | sdkmanager --licenses
+      # Force non-interactive license acceptance (even if the previous step tries to prompt)
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses >/dev/null
 
-      - name: Install required Android SDK components
+      - name: Ensure Gradle wrapper
         run: |
-          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
-
-      - name: Verify project layout
-        run: |
-          echo "== Top-level files =="
-          ls -la
-          echo "== app/src/main listing =="
-          ls -la app/src/main || true
-          echo "== Checking required files =="
-          for f in \
-            app/src/main/AndroidManifest.xml \
-            app/src/main/java/com/mudrahub/MainActivity.kt \
-            app/build.gradle.kts \
-            settings.gradle.kts \
-            gradle.properties
-          do
-            if [ -f "$f" ]; then 
-              echo "Found: $f"
-            else 
-              echo "Missing: $f" && missing=1
-            fi
-          done
-          test -z "${missing:-}" || (echo "Missing required files. See above." && exit 1)
-
-      - name: Regenerate Gradle wrapper
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gradle
-          rm -f gradlew gradlew.bat
-          rm -rf gradle/wrapper
-          gradle wrapper --gradle-version 8.7
+          if [ ! -f ./gradlew ]; then
+            gradle wrapper --gradle-version 8.7
+          fi
           chmod +x ./gradlew
-          ./gradlew --version
 
-      - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
+      - name: Build Debug APK (show Kotlin errors clearly if any)
+        run: |
+          ./gradlew :app:compileDebugKotlin --stacktrace --info --no-daemon
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
