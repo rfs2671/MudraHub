@@ -17,34 +17,25 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
           cache: gradle
 
-      # Install cmdline tools + the *exact* packages we need
-      - name: Set up Android SDK
+      # Install the exact Android SDK bits we need (note the multiline 'packages:' block)
+      - name: Install Android SDK
         uses: android-actions/setup-android@v3
         with:
-          cmdline-tools-version: 12266719
+          accept-android-sdk-licenses: true
           packages: |
             platform-tools
             platforms;android-34
             build-tools;34.0.0
 
-      # Force non-interactive license acceptance (even if the previous step tries to prompt)
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses >/dev/null
+      # Ensure Gradle wrapper has execute permission
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
-      - name: Ensure Gradle wrapper
-        run: |
-          if [ ! -f ./gradlew ]; then
-            gradle wrapper --gradle-version 8.7
-          fi
-          chmod +x ./gradlew
-
-      - name: Build Debug APK (show Kotlin errors clearly if any)
-        run: |
-          ./gradlew :app:compileDebugKotlin --stacktrace --info --no-daemon
-          ./gradlew :app:assembleDebug --stacktrace --no-daemon
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
