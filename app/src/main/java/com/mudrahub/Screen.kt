@@ -11,14 +11,45 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mudrahub.data.ConnectorKind
 import com.mudrahub.data.TargetDevice
+import com.mudrahub.sysbt.AccessibilityHelper
+import kotlinx.coroutines.delay
 
 @Composable
 fun MudraScreen(vm: AppViewModel = viewModel()) {
     val devices by vm.devicesFlow.collectAsState(initial = emptyList())
     val status by vm.status.collectAsState(initial = "Ready")
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+
+    // Poll while visible so the banner auto-hides once user enables the service and returns
+    var a11yEnabled by remember { mutableStateOf(AccessibilityHelper.isServiceEnabled(ctx)) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            a11yEnabled = AccessibilityHelper.isServiceEnabled(ctx)
+            delay(600) // lightweight
+        }
+    }
 
     Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text("MudraHub") }) }) { pad ->
-        Column(Modifier.fillMaxSize().padding(pad).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(pad)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // === Accessibility banner (only for SystemBt flow) ===
+            if (!a11yEnabled) {
+                ElevatedCard(colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                    Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Enable Accessibility", style = MaterialTheme.typography.titleMedium)
+                        Text("Turn on MudraHub in Accessibility so the app can auto-press “Connect” on the Bluetooth settings screen for your chosen device.")
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(onClick = { AccessibilityHelper.openAccessibilitySettings(ctx) }) { Text("Open Settings") }
+                            OutlinedButton(onClick = { a11yEnabled = AccessibilityHelper.isServiceEnabled(ctx) }) { Text("Refresh") }
+                        }
+                    }
+                }
+            }
 
             Text(status, style = MaterialTheme.typography.bodyMedium)
 
@@ -30,7 +61,8 @@ fun MudraScreen(vm: AppViewModel = viewModel()) {
             // Device list
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(devices, key = { it.id }) { d ->
-                    DeviceRow(d,
+                    DeviceRow(
+                        d,
                         onConnect = { vm.connectTo(d) },
                         onDisconnect = { vm.disconnectFrom(d) },
                         onEdit = { vm.editDevice(it) },
