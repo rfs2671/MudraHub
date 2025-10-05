@@ -26,19 +26,39 @@ jobs:
       - name: Accept licenses
         run: yes | sdkmanager --licenses
 
-      # Ensure the platform/build-tools you compile against are present
       - name: Install required Android SDK components
         run: |
           sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
 
-      # Generate a fresh wrapper if the repo doesn't have one; make it executable
-      - name: Ensure Gradle wrapper
+      - name: Verify project layout
         run: |
-          if [ ! -f ./gradlew ]; then
-            sudo apt-get update
-            sudo apt-get install -y gradle
-            gradle wrapper --gradle-version 8.7
-          fi
+          echo "== Top-level files =="
+          ls -la
+          echo "== app/src/main listing =="
+          ls -la app/src/main || true
+          echo "== Checking required files =="
+          for f in \
+            app/src/main/AndroidManifest.xml \
+            app/src/main/java/com/mudrahub/MainActivity.kt \
+            app/build.gradle.kts \
+            settings.gradle.kts \
+            gradle.properties
+          do
+            if [ -f "$f" ]; then 
+              echo "Found: $f"
+            else 
+              echo "Missing: $f" && missing=1
+            fi
+          done
+          test -z "${missing:-}" || (echo "Missing required files. See above." && exit 1)
+
+      - name: Regenerate Gradle wrapper
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gradle
+          rm -f gradlew gradlew.bat
+          rm -rf gradle/wrapper
+          gradle wrapper --gradle-version 8.7
           chmod +x ./gradlew
           ./gradlew --version
 
