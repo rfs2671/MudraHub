@@ -1,3 +1,17 @@
-<resources>
-    <style name="Theme.MudraHub" parent="Theme.Material3.Dark.NoActionBar"/>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme -->
+    <style name="Theme.MudraHub" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@android:color/holo_blue_light</item>
+        <item name="colorSecondary">@android:color/holo_green_light</item>
+
+        <!-- Customize status and navigation bar -->
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
+
+        <!-- App-level appearance tweaks -->
+        <item name="android:windowBackground">?android:colorBackground</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
 </resources>
