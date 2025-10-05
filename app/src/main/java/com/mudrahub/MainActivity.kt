@@ -18,14 +18,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun AppRoot() {
+fun AppRoot() {
     MaterialTheme {
         Surface(Modifier.fillMaxSize()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("MudraHub", style = MaterialTheme.typography.headlineMedium)
                     Spacer(Modifier.height(8.dp))
-                    Text("Build is working ✅")
+                    Text("✅ Build success ready")
                 }
             }
         }
